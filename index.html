@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+
+<html>
+	<head>
+		<title>WebGL.js</title>
+		<meta charset="utf8" />
+		<script src="webgl.js/webgl.js"></script>
+		<script src="main.js"></script>
+
+		<!-- Default shaders -->
+		<script id="v-default" type="shader/vertex">
+			attribute vec3 vertexPosition;
+
+			uniform mat4 pMatrix;
+			uniform mat4 mvMatrix;
+			
+			void main(void) {
+				gl_Position = pMatrix * mvMatrix * vec4(vertexPosition, 1);
+			}
+		</script>
+		<script id="f-default" type="shader/fragment">
+			precision mediump float;
+
+			void main(void) {
+				gl_FragColor = vec4(1, 1, 1, 1);
+			}
+		</script>
+	
+		<!-- Shaders for rendering a texture -->
+		<script id="v-texture" type="shader/vertex">
+			attribute vec3 vertexPosition;
+			attribute vec2 texCoord;
+			
+			uniform mat4 pMatrix;
+			uniform mat4 mvMatrix;
+
+			varying vec2 fTexCoord;
+			
+			void main(void) {
+				gl_Position = pMatrix * mvMatrix * vec4(vertexPosition, 1);
+				fTexCoord = texCoord;
+			}
+		</script>
+		<script id="f-texture" type="shader/fragment">
+			precision mediump float;
+			uniform sampler2D sampler;
+			varying vec2 fTexCoord;
+
+			void main(void) {
+				vec2 ct = fTexCoord-vec2(0.5,0.5);
+				float d = length(ct);
+				float k = -1.0;
+
+				vec2 finalCoord = ct * (1.0 + k*d*d);
+				finalCoord = finalCoord + vec2(0.5,0.5);
+				
+				if (finalCoord.x < 0.0)
+					finalCoord.x = 0.0;
+				if (finalCoord.x > 1.0)
+					finalCoord.x = 1.0;
+
+				if (finalCoord.y < 0.0)
+					finalCoord.y = 0.0;
+				if (finalCoord.y > 1.0)
+					finalCoord.y = 1.0;
+				
+				gl_FragColor = texture2D(sampler, finalCoord);
+			}
+		</script>
+
+		<style type="text/css">
+			html {
+				overflow: hidden;
+			}
+			
+			body {
+				margin: 0;
+				width: 100%;
+				height: 100%;
+			}
+		</style>
+	</head>
+
+	<body onload="begin()">
+		<canvas id="canvas" width="512px" height="512px">
+			Sorry, your browser do not support HTML5 canvas.
+		</canvas>
+	</body>
+</html>
